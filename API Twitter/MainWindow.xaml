@@ -34,7 +34,8 @@
                        Margin="5,0,0,8" 
                        IsHitTestVisible="False"
                        x:Name="PlaceholderTextBlock"/>
-            <Button x:Name="SearchButton" Content="Rechercher" Width="100" Margin="571,4,109,4" Click="SearchButton_Click" Background="LightGray" Foreground="Black"/>
+            <Button x:Name="SearchButton" Content="Rechercher" Width="100" Margin="571,4,0,4" Click="SearchButton_Click" Background="LightGray" Foreground="Black"/>
+            <Button x:Name="FavoriteButton" Content="Ajouter aux favoris" Width="150" Margin="210,0,0,0" Click="FavoriteButton_Click" Background="LightGray" Foreground="Black"/>
         </Grid>
 
         <ListBox x:Name="TweetsListBox" 

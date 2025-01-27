@@ -18,19 +18,17 @@ using API_Twitter.Model;
 
 namespace API_Twitter
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private readonly string bearerToken = "AAAAAAAAAAAAAAAAAAAAAKitxAEAAAAAkJGgrVb4nBuKEoyTH9EazYpcFLk%3DByDukyZycv7Xfq2CL8AUuPrJWmkuZpggiVAqsqZf9NLr2aRRGj"; // Remplacez par votre Bearer Token
 
         private readonly List<TweetData> ListTwitdata = new List<TweetData>();
+        private readonly HashSet<string> favoris = new HashSet<string>(); // Liste des utilisateurs favoris
 
         private readonly List<string> usernames = new List<string>
         {
-            "elonmusk",
             "Cristiano",
+            "elonmusk",
             "TheNotoriousMMA"
         };
 
@@ -44,9 +42,21 @@ namespace API_Twitter
         {
             TweetsListBox.Items.Clear(); // Vider la ListBox avant de charger de nouveaux tweets
 
-            foreach (var username in usernames)
+            // Si aucun utilisateur favori, charger les tweets des utilisateurs par défaut
+            if (favoris.Count == 0)
             {
-                await LoadTweetsForUser(username, tweetLimit);
+                foreach (var username in usernames)
+                {
+                    await LoadTweetsForUser(username, tweetLimit);
+                }
+            }
+            else
+            {
+                // Charger uniquement les tweets des utilisateurs favoris
+                foreach (var username in favoris)
+                {
+                    await LoadTweetsForUser(username, tweetLimit);
+                }
             }
         }
 
@@ -62,6 +72,32 @@ namespace API_Twitter
             }
 
             await LoadTweetsForUser(username, 5); // Charger 5 tweets pour l'utilisateur spécifié
+        }
+
+        private void FavoriteButton_Click(object sender, RoutedEventArgs e)
+        {
+            string username = UsernameTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(username))
+            {
+                TweetsListBox.Items.Add("Veuillez entrer un nom d'utilisateur pour ajouter aux favoris.");
+                return;
+            }
+
+            // Ajouter ou retirer l'utilisateur des favoris
+            if (favoris.Contains(username))
+            {
+                favoris.Remove(username);
+                TweetsListBox.Items.Add($"Utilisateur @{username} retiré des favoris.");
+            }
+            else
+            {
+                favoris.Add(username);
+                TweetsListBox.Items.Add($"Utilisateur @{username} ajouté aux favoris.");
+            }
+
+            // Charger les tweets des utilisateurs favoris après modification
+            LoadTweets(5);
         }
 
         private async Task LoadTweetsForUser(string username, int tweetLimit)
@@ -108,11 +144,12 @@ namespace API_Twitter
                             {
                                 // Convertir la date de publication
                                 var tweetDate = DateTime.Parse(tweet.created_at);
-                                TweetsListBox.Items.Add($"{tweet.text} \nPosté par @{username} le {tweetDate:g}");
+                                string formattedDate = tweetDate.ToString("g"); // Format général (date et heure)
+                                TweetsListBox.Items.Add($"{tweet.text}\nPosté par @{username} le {formattedDate}");
                             }
                             else
                             {
-                                TweetsListBox.Items.Add($"{tweet.text} \nPosté par @{username} (date inconnue)");
+                                TweetsListBox.Items.Add($"{tweet.text}\nPosté par @{username} (date inconnue)");
                             }
                         }
                     }
